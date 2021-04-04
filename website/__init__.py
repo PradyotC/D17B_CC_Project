@@ -106,14 +106,14 @@ def create_app():
 	        return render_template('home.html', username=session['username'])
 	    # User is not loggedin redirect to login page
 	    return redirect(url_for('login'))
-	@app.route('/cc/edit', methods=['GET'])    
+	@app.route('/cc/edit', methods=['GET','POST'])    
 	def edit():
 	    filepath = request.args.get('filepath')
 	    text_content = request.args.get('text_content')
 	    str1 = oc.get_file_contents(filepath)
 	    str2 = bytes(str1.decode('UTF-8') + "\n" + text_content,'UTF-8')
 	    oc.put_file_contents(filepath, str2)
-	    return redirect(url_for('login'))		
+	    return {"message":"successful"}
 
 	# http://localhost:5000/pythinlogin/profile - this will be the profile page, only accessible for loggedin users
 	@app.route('/cc/profile')

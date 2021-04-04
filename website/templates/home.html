@@ -13,7 +13,9 @@
             let b = $('#text_content').val(); 
             $.getJSON('/cc/edit?filepath='+a+'&text_content='+b,
                 function(data) {
-              //do nothing
+
+              $('#message1').html(data.message);
+            
             });
             return false;
           });
@@ -34,5 +36,6 @@
 		<div class="msg">{{ msg }}</div>
 		<button href=# id="btn" type="submit">Change</button>
 	</form>
+	<h1 id="message1">hihihih</h1>
 </div>
 {% endblock %}
