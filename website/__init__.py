@@ -124,6 +124,56 @@ def create_app():
 	    oc.put_file_contents(filepath, str2)
 	    return {"message":"successful"}
 
+	@app.route('/cc/home/delete' , methods=['GET', 'POST']) 
+	def delete():
+
+		msg = ''
+		return render_template('delete.html', msg=msg)
+	@app.route('/cc/delete1', methods=['GET','POST'])    
+	def delete1():
+		filepath = request.args.get('filepath')
+		oc.delete(filepath)
+		return {"message":"deleted"}
+
+	@app.route('/cc/home/create' , methods=['GET', 'POST']) 
+	def create():
+
+		msg = ''
+		return render_template('create.html', msg=msg)
+	@app.route('/cc/create1', methods=['GET','POST'])    
+	def create1():
+		filepath = request.args.get('filepath')
+		oc.mkdir(filepath)
+		return {"message":"Created"}	
+
+
+	@app.route('/cc/home/create_file', methods=['GET', 'POST'])
+	def create_file():	
+		msg = ''
+		return render_template('create.html', msg=msg)		
+
+	@app.route('/cc/create_file1', methods=['GET','POST'])    
+	def create_file1():
+	    filepath = request.args.get('filepath')
+	    text_content = request.args.get('text_content')
+	   # str1 = oc.get_file_contents(filepath)
+	    str2 = bytes(text_content,'UTF-8')
+	    oc.put_file_contents(filepath,str2)
+	    return {"message":"successful"}
+
+	@app.route('/cc/home/read', methods=['GET', 'POST'])
+	def read():	
+		msg = ''
+		return render_template('read.html', msg=msg)		
+
+	@app.route('/cc/read1', methods=['GET','POST'])    
+	def read1():
+	    filepath = request.args.get('filepath')
+	    #text_content = request.args.get('text_content')
+	    str1 = oc.get_file_contents(filepath).decode('UTF-8')
+	    return {"message":str(str1)}
+
+
 	# http://localhost:5000/pythinlogin/profile - this will be the profile page, only accessible for loggedin users
 	@app.route('/cc/profile')
 	def profile():

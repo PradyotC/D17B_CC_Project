@@ -16,4 +16,26 @@
 		<button href=# id="btn" type="submit">Edit File</button>
 	</form>
 </div>
+
+
+<div class="login">
+	<h1>Delete File</h1>
+	<form action="{{ url_for('delete') }}" method="post">
+		<button href=# id="btn1" type="submit">Delete File</button>
+	</form>
+</div>
+
+<div class="login">
+	<h1>Create File</h1>
+	<form action="{{ url_for('create_file') }}" method="post">
+		<button href=# id="btn2" type="submit">create File</button>
+	</form>
+</div>
+
+<div class="login">
+	<h1>Read File</h1>
+	<form action="{{ url_for('read') }}" method="post">
+		<button href=# id="btn3" type="submit">read File</button>
+	</form>
+</div>
 {% endblock %}
