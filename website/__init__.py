@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
+import owncloud
 
 def create_app():
 	app = Flask(__name__)
@@ -19,8 +20,9 @@ def create_app():
 	# Intialize MySQL
 	mysql = MySQL(app)
 
-	print("connection successfully")
 
+	oc = owncloud.Client('http://34.123.27.121/')
+	oc.login('user', 'q5XLTik5OPYm')
 
 	# http://localhost:5000/pythonlogin/ - this will be the login page, we need to use both GET and POST requests
 	@app.route('/cc/', methods=['GET', 'POST'])
@@ -104,6 +106,16 @@ def create_app():
 	        return render_template('home.html', username=session['username'])
 	    # User is not loggedin redirect to login page
 	    return redirect(url_for('login'))
+
+	def edit():
+	    filepath = request.form['filepath']
+	    text_content = request.form['text_content']
+
+		str1 = oc.get_file_contents(str(filepath))
+		str2 = bytes(str1.decode('UTF-8') + "\n" + text_content,'UTF-8')
+		oc.put_file_contents(filepath, str2)
+
+		return redirect(url_for('home'))		
 
 	# http://localhost:5000/pythinlogin/profile - this will be the profile page, only accessible for loggedin users
 	@app.route('/cc/profile')
