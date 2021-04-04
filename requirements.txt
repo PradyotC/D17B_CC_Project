@@ -1,4 +1,19 @@
-flask
-mysqlclient-1.4.6
-pyocclient
-flask-mysqldb
+certifi==2020.12.5
+chardet==4.0.0
+click==7.1.2
+Flask==1.1.1
+Flask-MySQL==1.5.2
+Flask-MySQLdb==0.2.0
+idna==2.10
+itsdangerous==1.1.0
+Jinja2==2.11.3
+MarkupSafe==1.1.1
+mysql-connector-python==8.0.23
+mysqlclient @ file:///D:/Downloads/CC_App/D17B_CC_Project/mysqlclient-1.4.6-cp37-cp37m-win32.whl
+protobuf==3.15.7
+PyMySQL==1.0.2
+pyocclient==0.6
+requests==2.25.1
+six==1.15.0
+urllib3==1.26.4
+Werkzeug==1.0.1
