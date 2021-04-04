@@ -3,6 +3,23 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type=text/javascript>
+        $(function() {
+          $('button#btn').on('click', function(e) {
+            e.preventDefault();
+            let a = $('#filepath').val();
+            let b = $('#text_content').val(); 
+            $.getJSON('/cc/edit?filepath='+a+'&text_content='+b,
+                function(data) {
+              //do nothing
+            });
+            return false;
+          });
+        });
+</script>
+
 <h2>Home Page</h2>
 <p>Welcome back, {{ username }}!</p>
 
@@ -11,11 +28,11 @@
 
 <div class="login">
 	<h1>Login</h1>
-	<form action="{{ url_for('edit') }}" method="post">
-		<input type="text" name="filename" placeholder="filepath" id="filepath" required>
-		<input type="text" name="text_content" placeholder="text_content" id="text_content" required>
+	<form action="{{ url_for('home') }}" method="post">
+		<input href=# type="text" name="filename" placeholder="filepath" id="filepath" required>
+		<input href=# type="text" name="text_content" placeholder="text_content" id="text_content" required>
 		<div class="msg">{{ msg }}</div>
-		<input type="submit" value="Change">
+		<button href=# id="btn" type="submit">Change</button>
 	</form>
 </div>
 {% endblock %}
