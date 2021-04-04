@@ -25,7 +25,10 @@ def create_app():
 	oc.login('user', 'q5XLTik5OPYm')
 
 	# http://localhost:5000/pythonlogin/ - this will be the login page, we need to use both GET and POST requests
-	@app.route('/', methods=['GET', 'POST'])
+	@app.route('/')
+	def start():
+	    return redirect(url_for('login'))
+	@app.route('/cc', methods=['GET', 'POST'])
 	def login():
 	    # Output message if something goes wrong...
 	    msg = ''
@@ -54,7 +57,7 @@ def create_app():
 	    return render_template('index.html', msg=msg)
 
 	# http://localhost:5000/python/logout - this will be the logout page
-	@app.route('/logout')
+	@app.route('/cc/logout')
 	def logout():
 	    # Remove session data, this will log the user out
 	   session.pop('loggedin', None)
@@ -64,7 +67,7 @@ def create_app():
 	   return redirect(url_for('login'))
 
 	# http://localhost:5000/pythinlogin/register - this will be the registration page, we need to use both GET and POST requests
-	@app.route('/register', methods=['GET', 'POST'])
+	@app.route('/cc/register', methods=['GET', 'POST'])
 	def register():
 	    # Output message if something goes wrong...
 	    msg = ''
@@ -98,7 +101,7 @@ def create_app():
 	    return render_template('register.html', msg=msg)
 
 	# http://localhost:5000/pythinlogin/home - this will be the home page, only accessible for loggedin users
-	@app.route('/home')
+	@app.route('/cc/home')
 	def home():
 	    # Check if user is loggedin
 	    if 'loggedin' in session:
@@ -107,12 +110,12 @@ def create_app():
 	    # User is not loggedin redirect to login page
 	    return redirect(url_for('login'))
 
-	@app.route('/home/edit', methods=['GET', 'POST'])
+	@app.route('/cc/home/edit', methods=['GET', 'POST'])
 	def edit():	
 		msg = ''
 		return render_template('edit.html', msg=msg)		
 
-	@app.route('/edit1', methods=['GET','POST'])    
+	@app.route('/cc/edit1', methods=['GET','POST'])    
 	def edit1():
 	    filepath = request.args.get('filepath')
 	    text_content = request.args.get('text_content')
@@ -122,7 +125,7 @@ def create_app():
 	    return {"message":"successful"}
 
 	# http://localhost:5000/pythinlogin/profile - this will be the profile page, only accessible for loggedin users
-	@app.route('/profile')
+	@app.route('/cc/profile')
 	def profile():
 	    # Check if user is loggedin
 	    if 'loggedin' in session:
