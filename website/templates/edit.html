@@ -1,0 +1,38 @@
+{% extends 'layout.html' %}
+
+{% block title %}Edit File{% endblock %}
+
+{% block content %}
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type=text/javascript>
+        $(function() {
+          $('button#btn').on('click', function(e) {
+            e.preventDefault();
+            let a = $('#filepath').val();
+            let b = $('#text_content').val(); 
+            $.getJSON('/cc/edit1?filepath='+a+'&text_content='+b,
+                function(data) {
+
+              $('#message1').html(data.message);
+            
+            });
+            return false;
+          });
+        });
+</script>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
+
+<div class="login">
+	<h1>Edit File</h1>
+	<form action="{{ url_for('home') }}" method="post">
+		<input href=# type="text" name="filename" placeholder="filepath" id="filepath" required>
+		<input href=# type="text" name="text_content" placeholder="text_content" id="text_content" required>
+		<div class="msg">{{ msg }}</div>
+		<button href=# id="btn" type="submit">Change</button>
+	</form>
+	<h1 id="message1"></h1>
+</div>
+{% endblock %}

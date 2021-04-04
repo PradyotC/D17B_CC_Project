@@ -106,8 +106,14 @@ def create_app():
 	        return render_template('home.html', username=session['username'])
 	    # User is not loggedin redirect to login page
 	    return redirect(url_for('login'))
-	@app.route('/cc/edit', methods=['GET','POST'])    
-	def edit():
+
+	@app.route('/cc/home/edit', methods=['GET', 'POST'])
+	def edit():	
+		msg = ''
+		return render_template('edit.html', msg=msg)		
+
+	@app.route('/cc/edit1', methods=['GET','POST'])    
+	def edit1():
 	    filepath = request.args.get('filepath')
 	    text_content = request.args.get('text_content')
 	    str1 = oc.get_file_contents(filepath)
