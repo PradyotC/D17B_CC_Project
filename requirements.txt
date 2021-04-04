@@ -1,0 +1,6 @@
+flask
+Flask-SQLAlchemy
+flask-login
+flask-mysqldb
+mysqlclient-1.4.6
+pyocclient
