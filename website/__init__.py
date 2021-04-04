@@ -27,7 +27,7 @@ def create_app():
 	# http://localhost:5000/pythonlogin/ - this will be the login page, we need to use both GET and POST requests
 	@app.route('/')
 	def start():
-	    return redirect(url_for('cc'))
+	    return redirect(url_for('login'))
 	@app.route('/cc/', methods=['GET', 'POST'])
 	def login():
 	    # Output message if something goes wrong...
