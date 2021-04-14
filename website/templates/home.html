@@ -2,40 +2,28 @@
 
 {% block title %}Home{% endblock %}
 
+{% block home %}
+<a href="{{ url_for('home') }}"><i class="fas fa-home"></i>Home</a>
+{% endblock %}
+
 {% block content %}
 
-<h2>Home Page</h2>
-<p>Welcome back, {{ username }}!</p>
+<div style="margin: 30px">
+	<h2 style="color: white;">Home Page</h2>
+	<p style="color: white;">Welcome back, {{ username }}!</p> 
 
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
+	<div class="login inline" style="float:left; margin:10px">
+		<h1>Delete File</h1>
+		<form action="{{ url_for('delete') }}" method="post">
+			<input href=# id="btn1" type="submit" value="Delete File">
+		</form>
+	</div>
 
-<div class="login">
-	<h1>Edit File</h1>
-	<form action="{{ url_for('edit') }}" method="post">
-		<button href=# id="btn" type="submit">Edit File</button>
-	</form>
-</div>
-
-
-<div class="login">
-	<h1>Delete File</h1>
-	<form action="{{ url_for('delete') }}" method="post">
-		<button href=# id="btn1" type="submit">Delete File</button>
-	</form>
-</div>
-
-<div class="login">
-	<h1>Create File</h1>
-	<form action="{{ url_for('create_file') }}" method="post">
-		<button href=# id="btn2" type="submit">create File</button>
-	</form>
-</div>
-
-<div class="login">
-	<h1>Read File</h1>
-	<form action="{{ url_for('read') }}" method="post">
-		<button href=# id="btn3" type="submit">read File</button>
-	</form>
+	<div class="login inline" style="float:left; margin:10px">
+		<h1>Read File</h1>
+		<form action="{{ url_for('read') }}" method="post">
+			<input href=# id="btn3" type="submit" value="Read File">
+		</form>
+	</div> 
 </div>
 {% endblock %}

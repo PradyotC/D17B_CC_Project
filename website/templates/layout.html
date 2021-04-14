@@ -6,17 +6,14 @@
 		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
 	</head>
-	<body class="loggedin">
+	<body>
 		<nav class="navtop">
 			<div>
-				<h1>Website Title</h1>
-                <a href="{{ url_for('home') }}"><i class="fas fa-home"></i>Home</a>
-				<a href="{{ url_for('profile') }}"><i class="fas fa-user-circle"></i>Profile</a>
+				<h1>Cloud Management App</h1>
+				{% block home %}{% endblock %}
 				<a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i>Logout</a>
 			</div>
 		</nav>
-		<div class="content">
 			{% block content %}{% endblock %}
-		</div>
 	</body>
 </html>
