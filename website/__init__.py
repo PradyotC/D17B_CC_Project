@@ -59,7 +59,8 @@ def create_app():
                 session['loggedin'] = True
                 session['type'] = 'user'
                 session['id'] = account['id']
-                session['username'] = account['username']
+                session['username'] = username
+                session['userpasswrd'] = password
                 # Redirect to home page
                 return redirect(url_for('home'))
             else:
@@ -250,6 +251,7 @@ def create_app():
     def sharefile1():
         filepath = request.args.get('filepath')
         username = session['username']
-        return ot.shareFile(username,filepath)
+        userpasswrd = session['userpasswrd']
+        return ot.shareFile(username,userpasswrd,filepath)
 
     return app
