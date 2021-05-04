@@ -1,5 +1,4 @@
 import owncloud
-import numpy as np
 
 class OcTools(object):
     oc = owncloud.Client('http://34.123.27.121/')
@@ -100,13 +99,15 @@ class OcTools(object):
                 list1 = []
                 return False, list1
 
+    def column(self, matrix, i):
+        return [row[i] for row in matrix]
+
     def getDuplicateAttributes(self, filepath):
-        isExist, dictList = self.checkDuplicateExist(filepath)
+        isExist, dataList = self.checkDuplicateExist(filepath)
         if isExist:
-            list2 = np.array(dictList)
-            C = list2[:,1].astype('int64')
-            val1 = np.argmin(C)
-            list3 = dictList[val1]
+            C = self.column(dataList,1)
+            val1 = C.index(min(C))
+            list3 = dataList[val1]
             return True, str(list3[0]), int(list3[1]), int(list3[2])
         else:
             checkPath = self.duplicateFilepath(filepath, 1)
