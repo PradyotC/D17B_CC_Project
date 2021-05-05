@@ -12,6 +12,37 @@ class OcTools(object):
         ocu.login(username, userpasswrd)
         return ocu
 
+    def getUserInfo(self,userList):
+        oc = self.oc
+        userInfoList = []
+        if self.fileExists(oc,'/.userInfo/'):
+            y = oc.list('/.userInfo/')
+            for i in y:
+                r = i.get_name().rfind('.txt')
+                userNameHex = i.get_name()[1:r]
+                userName = bytes.fromhex(userNameHex).decode('utf-8')
+                if userName in userList:
+                    str1 = oc.get_file_contents(i.get_path()+'/'+i.get_name()).decode('UTF-8')
+                    userInfoList.append(str1.split('\n'))
+            return True, userInfoList
+        else:
+            return False, userInfoList
+
+    def checkUserInfoFileEmpty(self):
+        oc = self.oc
+        if len(oc.list('/.userInfo/')) == 0:
+            oc.delete('/.userInfo/')
+
+    def createUserInfo(self, username, userpasswrd):
+        oc = self.oc
+        oc.create_user(username, userpasswrd)
+        if self.fileExists(oc,'/.userInfo/') == False:
+            oc.mkdir('/.userInfo/')
+        usernameHex = username.encode('utf-8')
+        userFile = '/.userInfo/a'+ usernameHex.hex() + '.txt'
+        infoData = bytes(username + '\n' + userpasswrd, 'UTF-8')
+        oc.put_file_contents(userFile,infoData)
+        
     def shareWithUser(self, path, username, userpasswrd):
         oc = self.oc
         ocu = self.ocUser(username,userpasswrd)
@@ -176,8 +207,8 @@ class OcTools(object):
                             shareId = userList1[userList.index(username)][1]
                             oc.delete_share(shareId)
                             if len(oc.get_shares(fileName)) == 0:
-                                oc.delete(fileName)
                                 bool2, _ = self.isFolder(fileName)
+                                oc.delete(fileName)
                                 if bool2:
                                     r = fileName[:-1].rfind('/')
                                 else:
@@ -198,5 +229,28 @@ class OcTools(object):
                     return {'message': 'File is not Shared to this user'}
             else:
                 return {'message': 'File is not Shared'}
+        else:
+            return {'message': 'File or Folder does not exist'}
+
+    def removeFileAdmin(self, username, userpasswrd, filepath):
+        if self.fileExists(self.oc,filepath):
+            oc = self.oc
+            bool0, p = self.isFolder(filepath)
+            bool1, _, userList1 = self.checkDuplicateExist(filepath)
+            userList = self.column(userList1,0)
+            if bool1:
+                oc.delete(self.duplicatePath(filepath))
+                _,userData = self.getUserInfo(userList)
+                for x in range(len(userData)):   
+                    ocu = self.ocUser(userData[x][0],userData[x][1])
+                    if bool0:
+                        r = p[:-1].rfind('/')
+                    else:
+                        r = p.rfind('/')
+                    ogDirectory = p[:r+1]
+                    if len(ocu.list(ogDirectory)) == 0:
+                        ocu.delete(ogDirectory)
+            oc.delete(p)
+            return {'message': 'File or Folder removed successfully'}
         else:
             return {'message': 'File or Folder does not exist'}

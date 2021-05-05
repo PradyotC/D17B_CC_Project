@@ -155,7 +155,6 @@ def create_app():
             # Create variables for easy access
             username = request.form['username']
             password = request.form['password']
-            oc.create_user(username, password)
             # Check if account exists using MySQL
             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
             cursor.execute('SELECT * FROM user_accounts WHERE username = %s', (username,))
@@ -168,6 +167,7 @@ def create_app():
             elif not username or not password:
                 msg = 'Please fill out the form!'
             else:
+                ot.createUserInfo(username, password)
                 # Account doesnt exists and the form data is valid, now insert new account into accounts table
                 cursor.execute('INSERT INTO user_accounts VALUES (NULL, %s, %s)', (username, password,))
                 mysql.connection.commit()
