@@ -1,5 +1,5 @@
 import owncloud
-
+# import json
 
 class OcTools(object):
     oc = owncloud.Client('http://34.123.27.121/')
@@ -12,6 +12,17 @@ class OcTools(object):
         ocu = owncloud.Client('http://34.123.27.121/')
         ocu.login(username, userpasswrd)
         return ocu
+
+    def getTruePath(self, oc, filepath):
+        p = oc.file_info(filepath).get_path()
+        if not oc.file_info(filepath).is_dir():
+            if p == '/':
+                p = '/' + oc.file_info(filepath).get_name()
+            else:
+                p = p + '/' + oc.file_info(filepath).get_name()
+        else:
+            p = p + '/'
+        return p
 
     def getUserInfo(self, userList):
         oc = self.oc
@@ -193,25 +204,29 @@ class OcTools(object):
             return False, checkPath, 0, 0
 
     def shareFile(self, username, userpasswrd, filepath):
-        if self.fileExists(self.oc, filepath):
-            oc = self.oc
-            _, p = self.isFolder(filepath)
-            bool1, path, links, c = self.getDuplicateAttributes(filepath)
-            if bool1:
-                if links < self.threshold:
-                    path1 = self.shareWithUser(path, p, username, userpasswrd)
-                elif links == self.threshold:
-                    path = self.duplicateFilepath(p, c + 1)
+        ocu = self.ocUser(username, userpasswrd)
+        if self.fileExists(ocu,filepath):
+            return {'message': 'File already shared'}
+        else:    
+            if self.fileExists(self.oc, filepath):
+                oc = self.oc
+                _, p = self.isFolder(filepath)
+                bool1, path, links, c = self.getDuplicateAttributes(filepath)
+                if bool1:
+                    if links < self.threshold:
+                        path1 = self.shareWithUser(path, p, username, userpasswrd)
+                    elif links == self.threshold:
+                        path = self.duplicateFilepath(p, c + 1)
+                        oc.copy(p, path)
+                        path1 = self.shareWithUser(path, p, username, userpasswrd)
+                else:
+                    oc.mkdir(self.duplicatePath(filepath))
+                    path = self.duplicateFilepath(p, 1)
                     oc.copy(p, path)
                     path1 = self.shareWithUser(path, p, username, userpasswrd)
+                return {'message': 'Shared successfull', 'path': path1}
             else:
-                oc.mkdir(self.duplicatePath(filepath))
-                path = self.duplicateFilepath(p, 1)
-                oc.copy(p, path)
-                path1 = self.shareWithUser(path, p, username, userpasswrd)
-            return {'message': 'Shared successfull', 'path': path1}
-        else:
-            return {'message': 'File or Folder does not exist'}
+                return {'message': 'File or Folder does not exist'}
 
     def modifyFile(self, filepath, filecontents):
         if self.fileExists(self.oc, filepath):
@@ -300,3 +315,31 @@ class OcTools(object):
             return {'message': 'File or Folder removed successfully'}
         else:
             return {'message': 'File or Folder does not exist'}
+
+    # def displayFiles(self, username, userpasswrd, filepath):
+    #     ocu = self.ocUser(username,userpasswrd)
+    #     fileList = ocu.list(filepath)
+    #     fileListDict = [ { 'filename' : self.getTruePath(ocu,i) } for i in fileList ]
+    #     return json.dumps(fileListDict, indent = 4)
+
+    def displayFilesAdmin(self, filepath):
+        fileList = [ [self.getTruePath(self.oc,i),i.get_content_type()] for i in self.oc.list(filepath) ]
+        bool1 = False
+        ogDirectory = ''
+        for elem in fileList:
+            if elem[0][:2] == '/.':
+                fileList.remove(elem)
+            if elem[0][-11:] == 'Duplicates/':
+                fileList.remove(elem)
+        if filepath == '':
+            bool1 = 1
+            ogDirectory = ''
+        else:
+            bool1 = 0
+            bool0, p = self.isFolder(filepath)
+            if bool0:
+                r = p[:-1].rfind('/')
+            else:
+                r = p.rfind('/')
+            ogDirectory = p[:r+1]
+        return bool1,ogDirectory,fileList

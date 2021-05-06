@@ -4,6 +4,7 @@ import MySQLdb.cursors
 import re
 import owncloud
 from OcTools import OcTools
+import json
 
 
 def create_app():
@@ -178,19 +179,20 @@ def create_app():
         # Show registration form with message (if any)
         return render_template('registerUser.html', msg=msg)
 
-    @app.route('/cc/admin/home/edit', methods=['GET', 'POST'])
+    @app.route('/cc/admin/home/edit/', methods=['GET', 'POST'])
     def edit():
-        msg = ''
-        return render_template('edit.html', msg=msg)
+        filepath = request.args.get('filepath')
+        return render_template('edit.html', filePath=json.dumps(filepath))
 
     @app.route('/cc/edit1', methods=['GET', 'POST'])
     def edit1():
         filepath = request.args.get('filepath')
-        text_content = request.args.get('text_content')
-        str1 = oc.get_file_contents(filepath)
-        str2 = bytes(str1.decode('UTF-8') + "\n" + text_content, 'UTF-8')
-        oc.put_file_contents(filepath, str2)
-        return {"message": "successful"}
+        text_content = request.args.get('text_content').replace("\\n", "\n")
+        # str1 = oc.get_file_contents(filepath)
+        # str2 = bytes(str1.decode('UTF-8') + "\n" + text_content, 'UTF-8')
+        # oc.put_file_contents(filepath, str2)
+        message = ot.modifyFile(filepath,text_content)
+        return message
 
     @app.route('/cc/home/delete', methods=['GET', 'POST'])
     def delete():
@@ -225,7 +227,6 @@ def create_app():
     def create_file1():
         filepath = request.args.get('filepath')
         text_content = request.args.get('text_content')
-        # str1 = oc.get_file_contents(filepath)
         str2 = bytes(text_content, 'UTF-8')
         oc.put_file_contents(filepath, str2)
         return {"message": "successful"}
@@ -238,7 +239,6 @@ def create_app():
     @app.route('/cc/read1', methods=['GET', 'POST'])
     def read1():
         filepath = request.args.get('filepath')
-        # text_content = request.args.get('text_content')
         str1 = oc.get_file_contents(filepath).decode('UTF-8')
         return {"message": str(str1)}
 
@@ -253,5 +253,16 @@ def create_app():
         username = session['username']
         userpasswrd = session['userpasswrd']
         return ot.shareFile(username,userpasswrd,filepath)
+
+    @app.route('/cc/admin/listFiles/', methods=['GET', 'POST'])
+    def listfileadmin():
+        filepath = request.args.get('filepath')
+        btndisable,backpath,temp1 = ot.displayFilesAdmin(filepath[1:])
+        return render_template('listFilesAdmin.html', btnDisable = btndisable, backPath = backpath, records = temp1)
+
+    @app.route('/cc/admin/readadmin/', methods=['GET', 'POST'])
+    def readadmin():
+        filepath = request.args.get('filepath')
+        return render_template('adminRead.html', filePath=json.dumps(filepath))
 
     return app

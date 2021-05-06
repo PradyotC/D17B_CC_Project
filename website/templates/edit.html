@@ -3,6 +3,7 @@
 {% block title %}Edit File{% endblock %}
 
 {% block home %}
+<a href="{{ url_for('listfileadmin',filepath='/') }}"><i class="fas fa-stream"></i>List</a>
 <a href="{{ url_for('adminHome') }}"><i class="fas fa-home"></i>Home</a>
 {% endblock %}
 
@@ -10,22 +11,6 @@
 {% block content %}
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script type=text/javascript>
-        $(function() {
-          $('button#btn').on('click', function(e) {
-            e.preventDefault();
-            let a = $('#filepath').val();
-            let b = $('#text_content').val(); 
-            $.getJSON('/cc/edit1?filepath='+a+'&text_content='+b,
-                function(data) {
-
-              $('#message1').html(data.message);
-            
-            });
-            return false;
-          });
-        });
-</script>
 
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
@@ -34,10 +19,57 @@
 	<h1>Edit File</h1>
 	<form action="{{ url_for('home') }}" method="post">
 		<input href=# type="text" name="filename" placeholder="filepath" id="filepath" required>
-		<input href=# type="text" name="text_content" placeholder="text_content" id="text_content" required>
-		<div class="msg">{{ msg }}</div>
+		<br>
+		<button href=# id="btn7" type="submit">Read</button>
+		<br><br><br>
+		<textarea rows="10" href=# name="text_content" placeholder="text_content" id="text_content"
+			style="width: 300px;" required></textarea>
+		<br>
 		<button href=# id="btn" type="submit">Edit</button>
+		<br><br><br>
+		<div class="msg" id="message1"></div>
 	</form>
-	<h1 id="message1"></h1>
 </div>
+
+
+<script type=text/javascript>
+  $(function() {
+    $('button#btn7').on('click', function(e) {
+            e.preventDefault();
+            let a = $('#filepath').val();
+            $.getJSON('/cc/read1?filepath='+a,
+             function(data) {
+            $('#text_content').val(data.message);      
+          });
+        return false;
+      });
+
+    $('button#btn').on('click', function(e) {
+      e.preventDefault();
+      let a = $('#filepath').val();
+      let b = $('#text_content').val();
+      $.getJSON('/cc/edit1?filepath='+a+'&text_content='+b.replace(/\n/g, "\\n"),
+          function(data) {
+        $('#message1').html(data.message);
+      
+      });
+      return false;
+    });
+  });
+</script>
+<script>
+	var filepathVar = {{ filePath| safe}}
+	if (filepathVar != null) {
+		document.getElementById("filepath").value = filepathVar;
+		$(function () {
+			let a = $('#filepath').val();
+			$.getJSON('/cc/read1?filepath=' + a,
+				function (data) {
+					$('#text_content').val(data.message);
+				});
+			return false;
+		});
+	};
+</script>
+
 {% endblock %}
