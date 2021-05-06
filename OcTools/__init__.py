@@ -1,5 +1,6 @@
 import owncloud
 
+
 class OcTools(object):
     oc = owncloud.Client('http://34.123.27.121/')
     oc.login('user', 'q5XLTik5OPYm')
@@ -12,10 +13,10 @@ class OcTools(object):
         ocu.login(username, userpasswrd)
         return ocu
 
-    def getUserInfo(self,userList):
+    def getUserInfo(self, userList):
         oc = self.oc
         userInfoList = []
-        if self.fileExists(oc,'/.userInfo/'):
+        if self.fileExists(oc, '/.userInfo/'):
             y = oc.list('/.userInfo/')
             for i in y:
                 r = i.get_name().rfind('.txt')
@@ -36,30 +37,43 @@ class OcTools(object):
     def createUserInfo(self, username, userpasswrd):
         oc = self.oc
         oc.create_user(username, userpasswrd)
-        if self.fileExists(oc,'/.userInfo/') == False:
+        if self.fileExists(oc, '/.userInfo/') == False:
             oc.mkdir('/.userInfo/')
         usernameHex = username.encode('utf-8')
-        userFile = '/.userInfo/a'+ usernameHex.hex() + '.txt'
+        userFile = '/.userInfo/a' + usernameHex.hex() + '.txt'
         infoData = bytes(username + '\n' + userpasswrd, 'UTF-8')
-        oc.put_file_contents(userFile,infoData)
-        
-    def shareWithUser(self, path, username, userpasswrd):
+        oc.put_file_contents(userFile, infoData)
+
+    def shareWithUser(self, path, p, username, userpasswrd):
         oc = self.oc
-        ocu = self.ocUser(username,userpasswrd)
-        dirListLength,dirList = self.dirPathList(path)
+        ocu = self.ocUser(username, userpasswrd)
+        dirListLength, dirList = self.dirPathList(p)
+        if dirList[0] == '/':
+            dirList.pop()
+            dirListLength = dirListLength - 1
         if dirListLength != 0:
             for x in dirList:
-                if self.fileExists(ocu,x) == False:
+                if self.fileExists(ocu, x) == False:
                     ocu.mkdir(x)
-        oc.share_file_with_user(path, username)
-        if dirListLength != 0:
+        if oc.file_info(path).is_dir():
+            oc.share_file_with_user(path, username, perms=2)
+            l1 = oc.get_shares(path)
+            for i in l1:
+                if i.get_share_with_displayname() == username:
+                    id1 = i.get_id()
+                    break
+            truePathL = path[:-1].rfind('/')
+            truePath = path[truePathL:]
+            ocu.move(truePath, p)
+            oc.update_share(id1, perms=1)
+        else:
+            oc.share_file_with_user(path, username)
             truePathL = path.rfind('/')
             truePath = path[truePathL:]
             e = truePath.rfind('_')
             f = truePath.rfind('.')
-            targetPath = dirList[dirListLength-1]
-            ocu.move(truePath,targetPath[:-1]+truePath[:e]+truePath[f:])
-        return targetPath[:-1]+truePath[:e]+truePath[f:]
+            ocu.move(truePath, p)
+        return p
 
     def fileExists(self, oc, filepath):
         try:
@@ -95,14 +109,24 @@ class OcTools(object):
     def dirPathList(self, filepath):
         k = []
         l = filepath
+        if self.oc.file_info(filepath).is_dir():
+            l = l[:-1]
         if l.rfind('/') != -1:
             last = l.rfind('/')
             while l.rfind('/') != 0:
-                k.insert(0,l[:last+1])
+                k.insert(0, l[:last+1])
                 l = l[:last]
                 last = l.rfind('/')
-            k.pop()
-        return len(k),k
+        return len(k), k
+
+    def checkDuplicate(self, filepath):
+        oc = self.oc
+        try:
+            y = oc.list(self.duplicatePath(filepath))
+            return True
+        except Exception as e:
+            if str(e)[-3:] == "404":
+                return False
 
     def checkDuplicateExist(self, filepath):
         oc = self.oc
@@ -116,7 +140,7 @@ class OcTools(object):
                     num1 = int(z.get_name()[l1:])
                     checkPath = self.duplicateFilepath(filepath, num1)
                     l1 = oc.get_shares(checkPath)
-                    [l3.append([i.get_share_with_displayname(),i.get_id()]) for i in l1]
+                    [l3.append([i.get_share_with_displayname(), i.get_id()]) for i in l1]
                     leng = len(l1)
                     thisList = [checkPath, leng, num1]
                     list1.append(thisList)
@@ -125,7 +149,7 @@ class OcTools(object):
                     num1 = int(z.get_name()[l1:r])
                     checkPath = self.duplicateFilepath(filepath, num1)
                     l1 = oc.get_shares(checkPath)
-                    [l3.append([i.get_share_with_displayname(),i.get_id()]) for i in l1]
+                    [l3.append([i.get_share_with_displayname(), i.get_id()]) for i in l1]
                     leng = len(l1)
                     thisList = [checkPath, leng, num1]
                     list1.append(thisList)
@@ -135,14 +159,31 @@ class OcTools(object):
                 list1 = []
                 return False, list1, list1
 
+    def getDuplicateFileList(self, filepath):
+        oc = self.oc
+        l1 = self.dirPathList(filepath)
+        if (not oc.file_info(filepath).is_dir()):
+            l1[1].append(filepath)
+        if l1[0]!=0:
+            l2 = []
+            for x in l1[1]:
+                if self.checkDuplicate(x):
+                    y = len(x)
+                    for xx in self.column(self.checkDuplicateExist(x)[1],0):
+                        l2.append(xx+filepath[y:])
+                    break
+            return True, l2
+        else:
+            return False, []
+
     def column(self, matrix, i):
         return [row[i] for row in matrix]
 
     def getDuplicateAttributes(self, filepath):
         isExist, dataList, _ = self.checkDuplicateExist(filepath)
         if isExist:
-            C = self.column(dataList,1)
-            D = self.column(dataList,2)
+            C = self.column(dataList, 1)
+            D = self.column(dataList, 2)
             val1 = C.index(min(C))
             val2 = max(D)
             list3 = dataList[val1]
@@ -152,28 +193,28 @@ class OcTools(object):
             return False, checkPath, 0, 0
 
     def shareFile(self, username, userpasswrd, filepath):
-        if self.fileExists(self.oc,filepath):
+        if self.fileExists(self.oc, filepath):
             oc = self.oc
             _, p = self.isFolder(filepath)
             bool1, path, links, c = self.getDuplicateAttributes(filepath)
             if bool1:
                 if links < self.threshold:
-                    path1 = self.shareWithUser(path, username, userpasswrd)
+                    path1 = self.shareWithUser(path, p, username, userpasswrd)
                 elif links == self.threshold:
                     path = self.duplicateFilepath(p, c + 1)
                     oc.copy(p, path)
-                    path1 = self.shareWithUser(path, username, userpasswrd)
+                    path1 = self.shareWithUser(path, p, username, userpasswrd)
             else:
                 oc.mkdir(self.duplicatePath(filepath))
                 path = self.duplicateFilepath(p, 1)
                 oc.copy(p, path)
-                path1 = self.shareWithUser(path, username, userpasswrd)
+                path1 = self.shareWithUser(path, p, username, userpasswrd)
             return {'message': 'Shared successfull', 'path': path1}
         else:
             return {'message': 'File or Folder does not exist'}
 
     def modifyFile(self, filepath, filecontents):
-        if self.fileExists(self.oc,filepath):
+        if self.fileExists(self.oc, filepath):
             oc = self.oc
             bool1, p = self.isFolder(filepath)
             if bool1:
@@ -182,10 +223,10 @@ class OcTools(object):
                 str1 = filecontents
                 str2 = bytes(str1, 'UTF-8')
                 oc.put_file_contents(p, str2)
-                bool2, duplicateFileList, _ = self.checkDuplicateExist(filepath)
+                bool2, duplicateFileList = self.getDuplicateFileList(filepath)
                 if bool2:
                     for iterations in duplicateFileList:
-                        duplicateFilePath1 = iterations[0]
+                        duplicateFilePath1 = iterations
                         oc.put_file_contents(duplicateFilePath1, str2)
                     return {'message': 'File modified successfully and duplicates updated'}
                 else:
@@ -194,36 +235,37 @@ class OcTools(object):
             return {'message': 'File or Folder does not exist'}
 
     def removeShare(self, username, userpasswrd, filepath):
-        if self.fileExists(self.oc,filepath):
+        if self.fileExists(self.oc, filepath):
             oc = self.oc
             bool0, p = self.isFolder(filepath)
             bool1, duplicateFileList1, userList1 = self.checkDuplicateExist(filepath)
-            duplicateFileList = self.column(duplicateFileList1,0)
-            userList = self.column(userList1,0)
+            duplicateFileList = self.column(duplicateFileList1, 0)
+            userList = self.column(userList1, 0)
             if bool1:
                 if username in userList:
                     for fileName in duplicateFileList:
                         if username in [i.get_share_with_displayname() for i in oc.get_shares(fileName)]:
                             shareId = userList1[userList.index(username)][1]
                             oc.delete_share(shareId)
-                            if len(oc.get_shares(fileName)) == 0:
-                                bool2, _ = self.isFolder(fileName)
-                                oc.delete(fileName)
-                                if bool2:
-                                    r = fileName[:-1].rfind('/')
-                                else:
-                                    r = fileName.rfind('/')
-                                dupDirectory = fileName[:r+1]
-                                if len(oc.list(dupDirectory)) == 0:
-                                    oc.delete(dupDirectory)
-                    ocu = self.ocUser(username,userpasswrd)
+                        if len(oc.get_shares(fileName)) == 0:
+                            bool2, _ = self.isFolder(fileName)
+                            oc.delete(fileName)
+                            if bool2:
+                                r = fileName[:-1].rfind('/')
+                            else:
+                                r = fileName.rfind('/')
+                            dupDirectory = fileName[:r+1]
+                            if len(oc.list(dupDirectory)) == 0:
+                                oc.delete(dupDirectory)
+                    ocu = self.ocUser(username, userpasswrd)
                     if bool0:
                         r = p[:-1].rfind('/')
                     else:
                         r = p.rfind('/')
                     ogDirectory = p[:r+1]
                     if len(ocu.list(ogDirectory)) == 0:
-                        ocu.delete(ogDirectory)
+                        if ogDirectory != '/':
+                            ocu.delete(ogDirectory)
                     return {'message': 'Share Removed Successfully'}
                 else:
                     return {'message': 'File is not Shared to this user'}
@@ -232,25 +274,29 @@ class OcTools(object):
         else:
             return {'message': 'File or Folder does not exist'}
 
-    def removeFileAdmin(self, username, userpasswrd, filepath):
-        if self.fileExists(self.oc,filepath):
+    def removeFileAdmin(self, filepath):
+        if self.fileExists(self.oc, filepath):
             oc = self.oc
             bool0, p = self.isFolder(filepath)
+            if bool0:
+                r = p[:-1].rfind('/')
+            else:
+                r = p.rfind('/')
+            ogDirectory = p[:r+1]
             bool1, _, userList1 = self.checkDuplicateExist(filepath)
-            userList = self.column(userList1,0)
             if bool1:
+                userList = self.column(userList1, 0)
                 oc.delete(self.duplicatePath(filepath))
-                _,userData = self.getUserInfo(userList)
-                for x in range(len(userData)):   
-                    ocu = self.ocUser(userData[x][0],userData[x][1])
-                    if bool0:
-                        r = p[:-1].rfind('/')
-                    else:
-                        r = p.rfind('/')
-                    ogDirectory = p[:r+1]
+                _, userData = self.getUserInfo(userList)
+                for x in range(len(userData)):
+                    ocu = self.ocUser(userData[x][0], userData[x][1])
                     if len(ocu.list(ogDirectory)) == 0:
-                        ocu.delete(ogDirectory)
+                        if ogDirectory != '/':
+                            ocu.delete(ogDirectory)
             oc.delete(p)
+            if len(oc.list(ogDirectory)) == 0:
+                if ogDirectory != '/':
+                    oc.delete(ogDirectory)
             return {'message': 'File or Folder removed successfully'}
         else:
             return {'message': 'File or Folder does not exist'}
