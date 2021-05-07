@@ -1,5 +1,4 @@
 import owncloud
-# import json
 
 class OcTools(object):
     oc = owncloud.Client('http://34.123.27.121/')
@@ -59,31 +58,32 @@ class OcTools(object):
         oc = self.oc
         ocu = self.ocUser(username, userpasswrd)
         dirListLength, dirList = self.dirPathList(p)
-        if dirList[0] == '/':
-            dirList.pop()
-            dirListLength = dirListLength - 1
+        if dirList:
+            if dirList[0] == '/':
+                print(dirListLength, dirList)
+                dirList.pop()
+                dirListLength = dirListLength - 1
         if dirListLength != 0:
             for x in dirList:
                 if self.fileExists(ocu, x) == False:
                     ocu.mkdir(x)
+        oc.share_file_with_user(path, username, perms=2)
+        l1 = oc.get_shares(path)
+        for i in l1:
+            if i.get_share_with_displayname() == username:
+                id1 = i.get_id()
+                break
         if oc.file_info(path).is_dir():
-            oc.share_file_with_user(path, username, perms=2)
-            l1 = oc.get_shares(path)
-            for i in l1:
-                if i.get_share_with_displayname() == username:
-                    id1 = i.get_id()
-                    break
             truePathL = path[:-1].rfind('/')
             truePath = path[truePathL:]
             ocu.move(truePath, p)
-            oc.update_share(id1, perms=1)
         else:
-            oc.share_file_with_user(path, username)
             truePathL = path.rfind('/')
             truePath = path[truePathL:]
             e = truePath.rfind('_')
             f = truePath.rfind('.')
             ocu.move(truePath, p)
+        oc.update_share(id1, perms=1)
         return p
 
     def fileExists(self, oc, filepath):
@@ -316,15 +316,27 @@ class OcTools(object):
         else:
             return {'message': 'File or Folder does not exist'}
 
-    # def displayFiles(self, username, userpasswrd, filepath):
-    #     ocu = self.ocUser(username,userpasswrd)
-    #     fileList = ocu.list(filepath)
-    #     fileListDict = [ { 'filename' : self.getTruePath(ocu,i) } for i in fileList ]
-    #     return json.dumps(fileListDict, indent = 4)
+    def displayFiles(self, username, userpasswrd, filepath):
+        ocu = self.ocUser(username,userpasswrd)
+        fileList = [ [self.getTruePath(ocu,i),i.get_content_type()] for i in ocu.list(filepath) ]
+        bool1 = 0
+        ogDirectory = ''
+        if filepath == '':
+            bool1 = 1
+            ogDirectory = ''
+        else:
+            bool1 = 0
+            bool0, p = self.isFolder(filepath)
+            if bool0:
+                r = p[:-1].rfind('/')
+            else:
+                r = p.rfind('/')
+            ogDirectory = p[:r+1]
+        return bool1,ogDirectory,fileList
 
     def displayFilesAdmin(self, filepath):
         fileList = [ [self.getTruePath(self.oc,i),i.get_content_type()] for i in self.oc.list(filepath) ]
-        bool1 = False
+        bool1 = 0
         ogDirectory = ''
         for elem in fileList:
             if elem[0][:2] == '/.':

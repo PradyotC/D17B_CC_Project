@@ -1,10 +1,11 @@
 {% extends 'layout.html' %}
 
-{% block title %}List Files{% endblock %}
+{% block title %}List UserFiles{% endblock %}
 
 {% block home %}
-<a href="{{ url_for('listfileadmin',filepath='/') }}"><i class="fas fa-stream"></i>List</a>
-<a href="{{ url_for('adminHome') }}"><i class="fas fa-home"></i>Home</a>
+<a href="{{ url_for('listfile1',filepath='/') }}"><i class="fas fa-stream"></i>List</a>
+<a href="{{ url_for('listfile',filepath='/') }}"><i class="fas fa-bars"></i>UserList</a>
+<a href="{{ url_for('home') }}"><i class="fas fa-home"></i>Home</a>
 {% endblock %}
 
 {% block content %}
@@ -25,38 +26,30 @@
 <div class="tablecontent">
     <h1>File List</h1>
     
-    <a href="{{url_for('listfileadmin',filepath=backPath)}}"><button id="backbutton">Back</button></a>
+    <a href="{{url_for('listfile',filepath=backPath)}}"><button id="backbutton">Back</button></a>
 
     <br>
 
     <table border="0" cellspacing="4" cellpadding="2">
         <thead>
-            <td>Remove</td>
             <td>Icon</td>
             <td>Filename</td>
-            <td>Open/Read</td>
-            <td>Modify</td>
+            <td></td>
         </thead>
         <tbody>
             {% for record in records %}
             <tr>
                 {% if record[1] == 'httpd/unix-directory' %}
-                <td><a class="rmv" href="{{record[0]}}"><button>Remove</button></a></td>
                 <td><i class="far fa-folder"></i></td>
                 <td>{{ record[0] }}</td>
-                <td><a href="{{url_for('listfileadmin',filepath=record[0])}}"><button>Open Folder</button></a></td>
-                <td></td>
+                <td><a href="{{url_for('listfile',filepath=record[0])}}"><button>Open Folder</button></a></td>
                 {% elif record[1] == 'text/plain' %}
-                <td><a class="rmv" href="{{record[0]}}"><button>Remove</button></a></td>
                 <td><i class="far fa-file-alt"></i></td>
                 <td>{{ record[0] }}</td>
-                <td><a href="{{url_for('readadmin',filepath=record[0])}}"><button>Read File</button></a></td>
-                <td><a href="{{url_for('edit',filepath=record[0])}}"><button>Modify File</button></a></td>
+                <td><a href="{{url_for('read',filepath=record[0],user='user')}}"><button>Read File</button></a></td>
                 {% else %}
-                <td><a class="rmv" href="{{record[0]}}"><button>Remove</button></a></td>
                 <td><i class="far fa-file"></i></td>
                 <td>{{ record[0] }}</td>
-                <td></td>
                 <td></td>
                 {% endif %}
             </tr>
@@ -72,19 +65,6 @@
     if (y){
         document.getElementById("backbutton").disabled = true;
     }
-
-    $(function() {
-      $('.rmv').on('click', function(e) {
-        e.preventDefault();
-        let a = $(this).attr('href');
-        $.getJSON('/cc/admin/remove/?filepath='+a,
-            function(data) {
-          $('#msg1').html(data.message);
-          window.setTimeout(function(){location.reload()},1500)
-        });
-        return false;
-      });
-    });
 </script>
 
 {% endblock %}

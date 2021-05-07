@@ -231,23 +231,35 @@ def create_app():
         oc.put_file_contents(filepath, str2)
         return {"message": "successful"}
 
-    @app.route('/cc/home/read', methods=['GET', 'POST'])
+    @app.route('/cc/home/read/', methods=['GET', 'POST'])
     def read():
-        msg = ''
-        return render_template('read.html', msg=msg)
+        filepath = request.args.get('filepath')
+        user11 =  request.args.get('user')
+        return render_template('read.html', filePath=json.dumps(filepath), user1 = json.dumps(user11))
 
-    @app.route('/cc/read1', methods=['GET', 'POST'])
+    @app.route('/cc/read1/', methods=['GET', 'POST'])
     def read1():
         filepath = request.args.get('filepath')
-        str1 = oc.get_file_contents(filepath).decode('UTF-8')
-        return {"message": str(str1)}
+        user1 =  request.args.get('user')
+        if user1 == 'admin':
+            if ot.fileExists(ot.oc,filepath):
+                str1 = ot.oc.get_file_contents(filepath).decode('UTF-8')
+                return {"message": str(str1)}
+            else:
+                return {"message": "File does not exist"}
+        else:
+            if ot.fileExists(oc,filepath):
+                str1 = oc.get_file_contents(filepath).decode('UTF-8')
+                return {"message": str(str1)}
+            else:
+                return {"message": "File does not exist"}
 
-    @app.route('/cc/home/sharefile', methods=['GET', 'POST'])
+    @app.route('/cc/home/sharefile/', methods=['GET', 'POST'])
     def sharefile():
-        msg = ''
-        return render_template('share.html', msg=msg)
+        filepath = request.args.get('filepath')
+        return render_template('share.html', filePath=json.dumps(filepath))
 
-    @app.route('/cc/sharefile1', methods=['GET', 'POST'])
+    @app.route('/cc/sharefile1/', methods=['GET', 'POST'])
     def sharefile1():
         filepath = request.args.get('filepath')
         username = session['username']
@@ -260,9 +272,28 @@ def create_app():
         btndisable,backpath,temp1 = ot.displayFilesAdmin(filepath[1:])
         return render_template('listFilesAdmin.html', btnDisable = btndisable, backPath = backpath, records = temp1)
 
+    @app.route('/cc/home/listFilesUser1/', methods=['GET', 'POST'])
+    def listfile1():
+        filepath = request.args.get('filepath')
+        btndisable,backpath,temp1 = ot.displayFilesAdmin(filepath[1:])
+        return render_template('listFilesAdminUser.html', btnDisable = btndisable, backPath = backpath, records = temp1)
+
+    @app.route('/cc/home/listFilesUser/', methods=['GET', 'POST'])
+    def listfile():
+        filepath = request.args.get('filepath')
+        username = session['username']
+        userpasswrd = session['userpasswrd']
+        btndisable,backpath,temp1 = ot.displayFiles(username,userpasswrd,filepath)
+        return render_template('listFilesUser.html', btnDisable = btndisable, backPath = backpath, records = temp1)
+
     @app.route('/cc/admin/readadmin/', methods=['GET', 'POST'])
     def readadmin():
         filepath = request.args.get('filepath')
         return render_template('adminRead.html', filePath=json.dumps(filepath))
+
+    @app.route('/cc/admin/remove/', methods=['GET', 'POST'])
+    def removeAdmin():
+        filepath = request.args.get('filepath')
+        return ot.removeFileAdmin(filepath)
 
     return app

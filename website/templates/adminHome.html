@@ -27,6 +27,13 @@
 	</div>
 
 	<div class="login inline" style="float:left; margin:10px">
+		<h1>Read File</h1>
+		<form action="{{ url_for('readadmin')}}" method="post">
+			<input href=# id="btn3" type="submit" value="Read File">
+		</form>
+	</div> 
+
+	<div class="login inline" style="float:left; margin:10px">
 		<h1>Create File</h1>
 		<form action="{{ url_for('create_file') }}" method="post">
 			<input href=# id="btn2" type="submit" value="Create File">

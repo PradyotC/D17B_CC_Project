@@ -4,7 +4,7 @@
 
 {% block home %}
 <a href="{{ url_for('listfileadmin',filepath='/') }}"><i class="fas fa-stream"></i>List</a>
-<a href="{{ url_for('home') }}"><i class="fas fa-home"></i>Home</a>
+<a href="{{ url_for('adminHome') }}"><i class="fas fa-home"></i>Home</a>
 {% endblock %}
 
 {% block content %}
@@ -15,8 +15,7 @@
           $('button#btn3').on('click', function(e) {
             e.preventDefault();
             let a = $('#filepath').val();
-            //let b = $('#text_content').val(); 
-            $.getJSON('/cc/read1?filepath='+a,
+			$.getJSON('/cc/read1/?filepath=' + a +'&user=admin',
                 function(data) {
               $('#message1').html(data.message.replace(/\n/g, "<br />"));
             });
@@ -45,8 +44,7 @@
 		document.getElementById("filepath").value = filepathVar;
 		$(function () {
 			let a = $('#filepath').val();
-			//let b = $('#text_content').val(); 
-			$.getJSON('/cc/read1?filepath=' + a,
+			$.getJSON('/cc/read1/?filepath=' + a +'&user=admin',
 				function (data) {
 					$('#message1').html(data.message.replace(/\n/g, "<br />"));
 				});

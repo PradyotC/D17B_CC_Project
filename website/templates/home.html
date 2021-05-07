@@ -3,6 +3,8 @@
 {% block title %}Home{% endblock %}
 
 {% block home %}
+<a href="{{ url_for('listfile1',filepath='/') }}"><i class="fas fa-stream"></i>List</a>
+<a href="{{ url_for('listfile',filepath='/') }}"><i class="fas fa-bars"></i>UserList</a>
 <a href="{{ url_for('home') }}"><i class="fas fa-home"></i>Home</a>
 {% endblock %}
 
@@ -12,16 +14,16 @@
 	<h2 style="color: white;">Home Page</h2>
 	<p style="color: white;">Welcome back, {{ username }}!</p> 
 
-	<div class="login inline" style="float:left; margin:10px">
+	<!-- <div class="login inline" style="float:left; margin:10px">
 		<h1>Delete File</h1>
 		<form action="{{ url_for('delete') }}" method="post">
 			<input href=# id="btn1" type="submit" value="Delete File">
 		</form>
-	</div>
+	</div> -->
 
 	<div class="login inline" style="float:left; margin:10px">
 		<h1>Read File</h1>
-		<form action="{{ url_for('read') }}" method="post">
+		<form action="{{ url_for('read',user='user') }}" method="post">
 			<input href=# id="btn3" type="submit" value="Read File">
 		</form>
 	</div> 

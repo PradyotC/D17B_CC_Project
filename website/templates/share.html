@@ -3,6 +3,8 @@
 {% block title %}Request Share{% endblock %}
 
 {% block home %}
+<a href="{{ url_for('listfile1',filepath='/') }}"><i class="fas fa-stream"></i>List</a>
+<a href="{{ url_for('listfile',filepath='/') }}"><i class="fas fa-bars"></i>UserList</a>
 <a href="{{ url_for('home') }}"><i class="fas fa-home"></i>Home</a>
 {% endblock %}
 
@@ -11,15 +13,12 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script type=text/javascript>
         $(function() {
-          $('button#btn7').on('click', function(e) {
+          $('button#btn9').on('click', function(e) {
             e.preventDefault();
             let a = $('#filepath').val();
-            //let b = $('#text_content').val(); 
-            $.getJSON('/cc/sharefile1?filepath='+a,
+            $.getJSON('/cc/sharefile1/?filepath='+a,
                 function(data) {
-
               $('#message1').html(data.message);
-            
             });
             return false;
           });
@@ -34,8 +33,25 @@
 	<form action="{{ url_for('home') }}" method="post">
 		<input href=# type="text" name="filename" placeholder="filepath" id="filepath" required>
 		<div class="msg">{{ msg }}</div>
-		<button href=# id="btn7" type="submit">Request Share</button>
+		<button href=# id="btn9" type="submit">Request Share</button>
 	</form>
-	<h1 id="message1"></h1>
+  <br>
+		<br>
+		<div class="msg" id="message1" style="padding: 10px;"></div>
 </div>
+
+<script>
+	var filepathVar = {{ filePath| safe}}
+	if (filepathVar != null) {
+		document.getElementById("filepath").value = filepathVar;
+		$(function () {
+			let a = $('#filepath').val();
+			$.getJSON('/cc/sharefile1/?filepath=' + a,
+				function (data) {
+					$('#message1').html(data.message);
+				});
+			return false;
+		});
+	};
+</script>
 {% endblock %}
