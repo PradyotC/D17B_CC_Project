@@ -184,13 +184,10 @@ def create_app():
         filepath = request.args.get('filepath')
         return render_template('edit.html', filePath=json.dumps(filepath))
 
-    @app.route('/cc/edit1', methods=['GET', 'POST'])
+    @app.route('/cc/edit1/', methods=['GET', 'POST'])
     def edit1():
         filepath = request.args.get('filepath')
         text_content = request.args.get('text_content').replace("\\n", "\n")
-        # str1 = oc.get_file_contents(filepath)
-        # str2 = bytes(str1.decode('UTF-8') + "\n" + text_content, 'UTF-8')
-        # oc.put_file_contents(filepath, str2)
         message = ot.modifyFile(filepath,text_content)
         return message
 

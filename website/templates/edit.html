@@ -38,7 +38,7 @@
     $('button#btn7').on('click', function(e) {
             e.preventDefault();
             let a = $('#filepath').val();
-            $.getJSON('/cc/read1?filepath='+a,
+            $.getJSON('/cc/read1/?filepath='+a,
              function(data) {
             $('#text_content').val(data.message);      
           });
@@ -49,7 +49,7 @@
       e.preventDefault();
       let a = $('#filepath').val();
       let b = $('#text_content').val();
-      $.getJSON('/cc/edit1?filepath='+a+'&text_content='+b.replace(/\n/g, "\\n"),
+      $.getJSON('/cc/edit1/?filepath='+a+'&text_content='+b.replace(/\n/g, "\\n"),
           function(data) {
         $('#message1').html(data.message);
       
