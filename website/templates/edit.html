@@ -64,7 +64,7 @@
 		document.getElementById("filepath").value = filepathVar;
 		$(function () {
 			let a = $('#filepath').val();
-			$.getJSON('/cc/read1?filepath=' + a,
+			$.getJSON('/cc/read1/?filepath=' + a,
 				function (data) {
 					$('#text_content').val(data.message);
 				});
