@@ -174,19 +174,21 @@ class OcTools(object):
     def getDuplicateFileList(self, filepath):
         oc = self.oc
         l1 = self.dirPathList(filepath)
-        if (not oc.file_info(filepath).is_dir()):
-            l1[1].append(filepath)
-        if l1[0]!=0:
-            l2 = []
-            for x in l1[1]:
-                if self.checkDuplicate(x):
-                    y = len(x)
-                    for xx in self.column(self.checkDuplicateExist(x)[1],0):
-                        l2.append(xx+filepath[y:])
-                    break
+        l1List = list(l1)
+        l1List[0] = l1List[0] + 1
+        l1List[1].append(filepath)
+        l1 = tuple(l1List)
+        l2 = []
+        for x in l1[1]:
+            if self.checkDuplicate(x):
+                y = len(x)
+                for xx in self.column(self.checkDuplicateExist(x)[1],0):
+                    l2.append(xx+filepath[y:])
+                break
+        if len(l2)!=0:
             return True, l2
         else:
-            return False, []
+            return False, l2
 
     def column(self, matrix, i):
         return [row[i] for row in matrix]
@@ -337,13 +339,13 @@ class OcTools(object):
 
     def displayFilesAdmin(self, filepath):
         fileList = [ [self.getTruePath(self.oc,i),i.get_content_type()] for i in self.oc.list(filepath) ]
+        fileList1 = []
         bool1 = 0
         ogDirectory = ''
         for elem in fileList:
-            if elem[0][:2] == '/.':
-                fileList.remove(elem)
-            if elem[0][-11:] == 'Duplicates/':
-                fileList.remove(elem)
+            if (elem[0][:2] != '/.') and (elem[0][-11:] != 'Duplicates/'):
+                fileList1.append(elem)
+        fileList = fileList1
         if filepath == '':
             bool1 = 1
             ogDirectory = ''
