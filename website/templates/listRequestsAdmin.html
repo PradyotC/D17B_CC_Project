@@ -1,0 +1,72 @@
+{% extends 'layout.html' %}
+
+{% block title %}Request List{% endblock %}
+
+{% block home %}
+<a href="{{ url_for('listrequests') }}"><i class="fas fa-inbox"></i>Requests</a>
+<a href="{{ url_for('listfileadmin',filepath='/') }}"><i class="fas fa-stream"></i>List</a>
+<a href="{{ url_for('adminHome') }}"><i class="fas fa-home"></i>Home</a>
+{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+<style>
+    .tablecontent {
+        background-color: white;
+        margin: 40px 40px;
+        font-size: 30px;
+    }
+</style>
+<br><br><br>
+<div class="tablecontent">
+    <h1>Request List</h1>
+
+    <br>
+
+    <table border="0" cellspacing="4" cellpadding="2">
+        <thead>
+            <td>Filename</td>
+            <td>Username</td>
+            <td>Accept</td>
+            <td>Reject</td>
+        </thead>
+        <tbody>
+            {% for record in records %}
+            <tr>
+                <td>{{ record[0] }}</td>
+                <td>{{ record[1] }}</td>
+                <td><a class="updt" href="{{record[0]+','+record[1]}}"><button name="accept"><i class="fas fa-check"></i></button></a>
+                </td>
+                <td><a class="updt" href="{{record[0]+','+record[1]}}"><button name="reject"><i class="fas fa-ban"></i></button></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <div class="msg" id="msg1" style="padding: 10px;"></div>
+
+</div>
+<script>
+    $(function () {
+        $('.updt').on('click', function (e) {
+            e.preventDefault();
+            let a = $(this).attr('href');
+            let b = $(this).children('button').attr('name');
+            a = btoa(a);
+            $.post('/cc/admin/updateRequests/?returndata='+a+'&updt='+b,
+                function (data) {
+                    $('#msg1').html(data.message);
+                    window.setTimeout(function () { location.reload() }, 1500);
+                }, 'json');
+            return false;
+        });
+    });
+</script>
+
+{% endblock %}

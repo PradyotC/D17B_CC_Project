@@ -3,6 +3,7 @@
 {% block title %}Read File{% endblock %}
 
 {% block home %}
+<a href="{{ url_for('listrequests') }}"><i class="fas fa-inbox"></i>Requests</a>
 <a href="{{ url_for('listfileadmin',filepath='/') }}"><i class="fas fa-stream"></i>List</a>
 <a href="{{ url_for('adminHome') }}"><i class="fas fa-home"></i>Home</a>
 {% endblock %}

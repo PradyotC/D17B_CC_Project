@@ -12,7 +12,9 @@
     <nav class="navtop">
         <div>
             <h1>Cloud Management App</h1>
-			<a href="{{ url_for('adminHome') }}"><i class="fas fa-home"></i>Home</a>
+            <a href="{{ url_for('listrequests') }}"><i class="fas fa-inbox"></i>Requests</a>
+            <a href="{{ url_for('listfileadmin',filepath='/') }}"><i class="fas fa-stream"></i>List</a>
+            <a href="{{ url_for('adminHome') }}"><i class="fas fa-home"></i>Home</a>
             <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i>Logout</a>
         </div>
     </nav>

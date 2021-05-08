@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 
-{% block title %}Request Share{% endblock %}
+{% block title %} Request Share{% endblock %}
 
 {% block home %}
 <a href="{{ url_for('listfile1',filepath='/') }}"><i class="fas fa-stream"></i>List</a>
@@ -12,17 +12,17 @@
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script type=text/javascript>
-        $(function() {
-          $('button#btn9').on('click', function(e) {
-            e.preventDefault();
-            let a = $('#filepath').val();
-            $.getJSON('/cc/sharefile1/?filepath='+a,
-                function(data) {
-              $('#message1').html(data.message);
-            });
-            return false;
-          });
-        });
+	$(function () {
+		$('button#btn9').on('click', function (e) {
+			e.preventDefault();
+			let a = $('#filepath').val();
+			$.getJSON('/cc/sharefile1/?filepath=' + a,
+				function (data) {
+					$('#message1').html(data.message);
+				});
+			return false;
+		});
+	});
 </script>
 
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
@@ -35,9 +35,9 @@
 		<div class="msg">{{ msg }}</div>
 		<button href=# id="btn9" type="submit">Request Share</button>
 	</form>
-  <br>
-		<br>
-		<div class="msg" id="message1" style="padding: 10px;"></div>
+	<br>
+	<br>
+	<div class="msg" id="message1" style="padding: 10px;"></div>
 </div>
 
 <script>

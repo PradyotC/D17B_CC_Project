@@ -25,7 +25,7 @@ def create_app():
     mysql = MySQL(app)
     oc = owncloud.Client('http://34.123.27.121/')
 
-    ot = OcTools(3)
+    ot = OcTools(4)
 
     # http://localhost:5000/pythonlogin/ - this will be the login page, we need to use both GET and POST requests
     @app.route('/')
@@ -263,14 +263,26 @@ def create_app():
     def sharefile1():
         filepath = request.args.get('filepath')
         username = session['username']
-        userpasswrd = session['userpasswrd']
-        return ot.shareFile(username,userpasswrd,filepath)
+        returnData = username + ',' + filepath
+        return ot.request(returnData)
 
     @app.route('/cc/admin/listFiles/', methods=['GET', 'POST'])
     def listfileadmin():
+        print(request.input_stream)
         filepath = request.args.get('filepath')
         btndisable,backpath,temp1 = ot.displayFilesAdmin(filepath[1:])
         return render_template('listFilesAdmin.html', btnDisable = btndisable, backPath = backpath, records = temp1)
+
+    @app.route('/cc/admin/listRequests/', methods=['GET', 'POST'])
+    def listrequests():
+        temp1 = ot.readRequestList()
+        return render_template('listRequestsAdmin.html', records = temp1)
+
+    @app.route('/cc/admin/updateRequests/', methods=['GET', 'POST'])
+    def updaterequests():
+        returnData = request.args.get('returndata')
+        updt = request.args.get('updt')
+        return ot.updateRequest(returnData, updt)
 
     @app.route('/cc/home/listFilesUser1/', methods=['GET', 'POST'])
     def listfile1():

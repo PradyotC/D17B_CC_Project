@@ -1,4 +1,5 @@
 import owncloud
+import base64
 
 class OcTools(object):
     oc = owncloud.Client('http://34.123.27.121/')
@@ -355,3 +356,44 @@ class OcTools(object):
                 r = p.rfind('/')
             ogDirectory = p[:r+1]
         return bool1,ogDirectory,fileList
+
+    def request(self, returnData):
+        x1 = returnData.encode('ascii')
+        base64_bytes = base64.b64encode(x1)
+        returnData = base64_bytes.decode('ascii')+'\n'
+        fileData = self.oc.get_file_contents('/.file1.txt').decode('UTF-8')
+        if returnData in fileData:
+            return {'message':'File already Shared'}
+        else:
+            fileData = fileData + returnData
+            self.oc.put_file_contents('/.file1.txt',bytes(fileData, 'UTF-8'))
+            return {'message':'File request sent'}
+
+    def updateRequest(self, returnData, updt):
+        if updt == 'accept':
+            base64_bytes = returnData.encode('ascii')
+            message_bytes = base64.b64decode(base64_bytes)
+            message = message_bytes.decode('ascii')
+            returnList = message.split(',')
+            _,userList = self.getUserInfo([returnList[0]])
+            msg = self.shareFile(returnList[0],userList[0][1],returnList[1])
+        else:
+            msg = {'message':'File Share Rejected'}
+        returnData = returnData +'\n'
+        fileData = self.oc.get_file_contents('/.file1.txt').decode('UTF-8')
+        fileData = fileData.replace(returnData,'')
+        self.oc.put_file_contents('/.file1.txt',bytes(fileData, 'UTF-8'))
+        return msg
+
+
+    def readRequestList(self):
+        returnList = []
+        fileList = self.oc.get_file_contents('/.file1.txt').decode('UTF-8')
+        if fileList != '':
+            rList = fileList[:-1].split('\n')
+            for i in rList:
+                base64_bytes = i.encode('ascii')
+                message_bytes = base64.b64decode(base64_bytes)
+                message = message_bytes.decode('ascii')
+                returnList.append(message.split(','))
+        return returnList
