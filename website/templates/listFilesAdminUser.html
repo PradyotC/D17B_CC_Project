@@ -79,7 +79,7 @@
             let a = $(this).attr('href');
             $.getJSON('/cc/sharefile1/?filepath=' + a,
                 function (data) {
-                    $('#msg1').val(data.message);
+                    $('#msg1').html(data.message);
                 });
             return false;
         });
