@@ -168,7 +168,7 @@ def create_app():
             elif not username or not password:
                 msg = 'Please fill out the form!'
             else:
-                ot.createUserInfo(username, password)
+                msg = ot.createUserInfo(username, password)
                 # Account doesnt exists and the form data is valid, now insert new account into accounts table
                 cursor.execute('INSERT INTO user_accounts VALUES (NULL, %s, %s)', (username, password,))
                 mysql.connection.commit()
@@ -215,18 +215,26 @@ def create_app():
         oc.mkdir(filepath)
         return {"message": "Created"}
 
-    @app.route('/cc/admin/home/create_file', methods=['GET', 'POST'])
+    @app.route('/cc/admin/home/create_file/', methods=['GET', 'POST'])
     def create_file():
-        msg = ''
-        return render_template('create.html', msg=msg)
+        filepath = request.args.get('filepath')
+        return render_template('create.html', filePath=json.dumps(filepath))
 
-    @app.route('/cc/create_file1', methods=['GET', 'POST'])
+    @app.route('/cc/create_file1/', methods=['GET', 'POST'])
     def create_file1():
         filepath = request.args.get('filepath')
-        text_content = request.args.get('text_content')
-        str2 = bytes(text_content, 'UTF-8')
-        oc.put_file_contents(filepath, str2)
-        return {"message": "successful"}
+        text_content = request.args.get('text_content').replace("\\n", "\n")
+        return ot.createFile(filepath, 'file', text_content)
+
+    @app.route('/cc/admin/home/create_folder/', methods=['GET', 'POST'])
+    def create_folder():
+        filepath = request.args.get('filepath')
+        return render_template('createFolder.html', filePath=json.dumps(filepath))
+
+    @app.route('/cc/create_folder1/', methods=['GET', 'POST'])
+    def create_folder1():
+        filepath = request.args.get('filepath')
+        return ot.createFile(filepath, 'folder', '')
 
     @app.route('/cc/home/read/', methods=['GET', 'POST'])
     def read():
@@ -265,10 +273,9 @@ def create_app():
 
     @app.route('/cc/admin/listFiles/', methods=['GET', 'POST'])
     def listfileadmin():
-        print(request.input_stream)
         filepath = request.args.get('filepath')
         btndisable,backpath,temp1 = ot.displayFilesAdmin(filepath[1:])
-        return render_template('listFilesAdmin.html', btnDisable = btndisable, backPath = backpath, records = temp1)
+        return render_template('listFilesAdmin.html', btnDisable = btndisable, backPath = backpath, records = temp1, currentPath = filepath)
 
     @app.route('/cc/admin/listRequests/', methods=['GET', 'POST'])
     def listrequests():

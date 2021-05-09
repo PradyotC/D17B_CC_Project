@@ -54,6 +54,7 @@ class OcTools(object):
         userFile = '/.userInfo/a' + usernameHex.hex() + '.txt'
         infoData = bytes(username + '\n' + userpasswrd, 'UTF-8')
         oc.put_file_contents(userFile, infoData)
+        return "User Created Sucessfully"
 
     def shareWithUser(self, path, p, username, userpasswrd):
         oc = self.oc
@@ -121,7 +122,7 @@ class OcTools(object):
     def dirPathList(self, filepath):
         k = []
         l = filepath
-        if self.oc.file_info(filepath).is_dir():
+        if l.rfind('/') == (len(l)-1):
             l = l[:-1]
         if l.rfind('/') != -1:
             last = l.rfind('/')
@@ -231,6 +232,48 @@ class OcTools(object):
             else:
                 return {'message': 'File or Folder does not exist'}
 
+    def createFile(self, filepath, type1, filecontents):
+        if (not self.fileExists(self.oc, filepath)):
+            oc = self.oc
+            if type1=='file':
+                str1 = filecontents
+                str2 = bytes(str1, 'UTF-8')
+            list1 = self.dirPathList(filepath)[1]
+            list1.reverse()
+            list2 = []
+            list3 = []
+            ogDirectory = '/'
+            for i in list1:
+                if (not self.fileExists(self.oc,i)):
+                    list2.append('/'+i[1:])
+                elif (not self.checkDuplicate(i)):
+                    list2.append('/'+i[1:])
+                else:
+                    ogDirectory = i
+                    break
+            list2.reverse()
+            list4 = []
+            [list4.append(i[len(ogDirectory)-1:]) for i in list2]
+            list2 = list4
+            list2.append(filepath[len(ogDirectory)-1:])
+            if ogDirectory!="/":
+                list3 = self.column(self.checkDuplicateExist(ogDirectory)[1],0)
+            list3.insert(0, ogDirectory)
+            for j in list3:
+                for k in list2:
+                    finalpath = j[:-1]+k
+                    if k.rfind('/') == (len(k)-1):
+                        oc.mkdir(finalpath)
+                    else:
+                        oc.put_file_contents(finalpath, str2)
+            if type1=='file':
+                return {'message': 'File created successfully'}
+            else:
+                return {'message': 'Folder created successfully'}
+        else:
+            return {'message': 'File or Folder already exists'}
+
+
     def modifyFile(self, filepath, filecontents):
         if self.fileExists(self.oc, filepath):
             oc = self.oc
@@ -295,33 +338,50 @@ class OcTools(object):
     def removeFileAdmin(self, filepath):
         if self.fileExists(self.oc, filepath):
             oc = self.oc
-            bool0, p = self.isFolder(filepath)
-            if bool0:
-                r = p[:-1].rfind('/')
-            else:
-                r = p.rfind('/')
-            ogDirectory = p[:r+1]
-            bool1, _, userList1 = self.checkDuplicateExist(filepath)
-            if bool1:
-                userList = self.column(userList1, 0)
-                oc.delete(self.duplicatePath(filepath))
-                _, userData = self.getUserInfo(userList)
+            list1 = self.dirPathList(filepath)[1]
+            list0 = list1
+            list1.reverse()
+            list2 = []
+            list3 = []
+            ogDirectory = '/'
+            for i in list1:
+                if (not self.fileExists(self.oc,i)):
+                    list2.append('/'+i[1:])
+                elif (not self.checkDuplicate(i)):
+                    list2.append('/'+i[1:])
+                else:
+                    ogDirectory = i
+                    break
+            list2.reverse()
+            list4 = []
+            [list4.append(i[len(ogDirectory)-1:]) for i in list2]
+            list2 = list4
+            list2.append(filepath[len(ogDirectory)-1:])
+            if ogDirectory!="/":
+                list3 = self.column(self.checkDuplicateExist(ogDirectory)[1],0)
+            list3.insert(0, ogDirectory)
+            for j in list3:
+                for k in list2:
+                    finalpath = j[:-1]+k
+                    if k.rfind('/') == (len(k)-1):
+                        oc.delete(finalpath)
+                    else:
+                        oc.delete(finalpath)
+            list3 = self.checkDuplicateExist(ogDirectory)
+            if list3[0]:
+                _, userData = self.getUserInfo(self.column(list3[2],0))
                 for x in range(len(userData)):
                     ocu = self.ocUser(userData[x][0], userData[x][1])
-                    if len(ocu.list(ogDirectory)) == 0:
-                        if ogDirectory != '/':
-                            ocu.delete(ogDirectory)
-            oc.delete(p)
-            if len(oc.list(ogDirectory)) == 0:
-                if ogDirectory != '/':
-                    oc.delete(ogDirectory)
+                    for y in list0:
+                        if (y != '/') and (len(ocu.list(y)) == 0):
+                            ocu.delete(y)
             return {'message': 'File or Folder removed successfully'}
         else:
             return {'message': 'File or Folder does not exist'}
 
     def displayFiles(self, username, userpasswrd, filepath):
         ocu = self.ocUser(username,userpasswrd)
-        fileList = [ [self.getTruePath(ocu,i),i.get_content_type()] for i in ocu.list(filepath) ]
+        fileList = [ [self.getTruePath(ocu,i),i.get_content_type(),i.get_last_modified()] for i in ocu.list(filepath) ]
         bool1 = 0
         ogDirectory = ''
         if filepath == '':
@@ -338,7 +398,7 @@ class OcTools(object):
         return bool1,ogDirectory,fileList
 
     def displayFilesAdmin(self, filepath):
-        fileList = [ [self.getTruePath(self.oc,i),i.get_content_type()] for i in self.oc.list(filepath) ]
+        fileList = [ [self.getTruePath(self.oc,i),i.get_content_type(),i.get_last_modified()] for i in self.oc.list(filepath) ]
         fileList1 = []
         bool1 = 0
         ogDirectory = ''

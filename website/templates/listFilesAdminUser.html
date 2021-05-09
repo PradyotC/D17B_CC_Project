@@ -36,6 +36,7 @@
             <td>Filename</td>
             <td>Open/Read</td>
             <td>RequestShare</td>
+            <td>Last Modified</td>
         </thead>
         <tbody>
             {% for record in records %}
@@ -45,16 +46,19 @@
                 <td>{{ record[0] }}</td>
                 <td><a href="{{url_for('listfile1',filepath=record[0])}}"><button>Open Folder</button></a></td>
                 <td><a class="req" href="{{record[0]}}"><button>Request Share</button></a></td>
+                <td>{{ record[2] }}</td>
                 {% elif record[1] == 'text/plain' %}
                 <td><i class="far fa-file-alt"></i></td>
                 <td>{{ record[0] }}</td>
                 <td><a href="{{url_for('read',filepath=record[0],user='admin')}}"><button>Read File</button></a></td>
                 <td><a class="req" href="{{record[0]}}"><button>Request Share</button></a></td>
+                <td>{{ record[2] }}</td>
                 {% else %}
                 <td><i class="far fa-file"></i></td>
                 <td>{{ record[0] }}</td>
                 <td></td>
                 <td></td>
+                <td>{{ record[2] }}</td>
                 {% endif %}
             </tr>
             {% endfor %}

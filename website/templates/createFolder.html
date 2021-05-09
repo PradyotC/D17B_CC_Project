@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 
-{% block title %}Create File{% endblock %}
+{% block title %}Create Folder{% endblock %}
 
 
 {% block home %}
@@ -15,13 +15,14 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script type=text/javascript>
         $(function() {
-          $('button#btn2').on('click', function(e) {
+          $('button#btn9').on('click', function(e) {
             e.preventDefault();
             let a = $('#filepath').val();
-            let b = $('#text_content').val(); 
-            $.getJSON('/cc/create_file1/?filepath='+a+'&text_content='+b.replace(/\n/g, "\\n"),
-              function(data) {
+            $.getJSON('/cc/create__folder1/?filepath='+a,
+                function(data) {
+
               $('#message1').html(data.message);
+            
             });
             return false;
           });
@@ -32,14 +33,11 @@
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
 
 <div class="login">
-	<h1>Create File</h1>
+	<h1>Create Folder</h1>
 	<form action="{{ url_for('home') }}" method="post">
 		<input href=# type="text" name="filename" placeholder="filepath" id="filepath" required>
-    <br>
-		<textarea rows="10" href=# name="text_content" placeholder="text_content" id="text_content"
-			style="width: 300px;" required></textarea>
-		<br>
-		<button href=# id="btn2" type="submit">Create</button>
+		<div class="msg">{{ msg }}</div>
+		<button href=# id="btn9" type="submit">Create</button>
 	</form>
 	<h1 id="message1"></h1>
 </div>
