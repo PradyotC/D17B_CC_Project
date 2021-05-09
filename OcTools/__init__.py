@@ -246,7 +246,7 @@ class OcTools(object):
             for i in list1:
                 if (not self.fileExists(self.oc,i)):
                     list2.append('/'+i[1:])
-                elif (not self.checkDuplicate(i)):
+                elif (not self.fileExists(self.oc,i)) and (not self.checkDuplicate(i)):
                     list2.append('/'+i[1:])
                 else:
                     ogDirectory = i
