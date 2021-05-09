@@ -344,21 +344,27 @@ class OcTools(object):
             list2 = []
             list3 = []
             ogDirectory = '/'
-            for i in list1:
-                if (not self.fileExists(self.oc,i)):
-                    list2.append('/'+i[1:])
-                elif (not self.checkDuplicate(i)):
-                    list2.append('/'+i[1:])
-                else:
-                    ogDirectory = i
-                    break
+            if self.checkDuplicate(filepath):
+                ogDirectory = filepath
+            else:
+                for i in list1:
+                    if (not self.fileExists(self.oc,i)):
+                        list2.append('/'+i[1:])
+                    elif (not self.fileExists(self.oc,i)) and (not self.checkDuplicate(i)):
+                        list2.append('/'+i[1:])
+                    else:
+                        ogDirectory = i
+                        break
             list2.reverse()
             list4 = []
             [list4.append(i[len(ogDirectory)-1:]) for i in list2]
             list2 = list4
             list2.append(filepath[len(ogDirectory)-1:])
             if ogDirectory!="/":
-                list3 = self.column(self.checkDuplicateExist(ogDirectory)[1],0)
+                list4 = self.checkDuplicateExist(ogDirectory)
+                bool0 = list4[0]
+                list3 = self.column(list4[1],0)
+                duplicatePath = self.duplicatePath(ogDirectory)
             list3.insert(0, ogDirectory)
             for j in list3:
                 for k in list2:
@@ -367,9 +373,10 @@ class OcTools(object):
                         oc.delete(finalpath)
                     else:
                         oc.delete(finalpath)
-            list3 = self.checkDuplicateExist(ogDirectory)
-            if list3[0]:
-                _, userData = self.getUserInfo(self.column(list3[2],0))
+            if bool0:
+                if (duplicatePath != '/') and (len(oc.list(duplicatePath)) == 0):
+                    oc.delete(duplicatePath)
+                _, userData = self.getUserInfo(self.column(list4[2],0))
                 for x in range(len(userData)):
                     ocu = self.ocUser(userData[x][0], userData[x][1])
                     for y in list0:
