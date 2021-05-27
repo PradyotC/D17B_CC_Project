@@ -18,7 +18,7 @@
           $('button#btn9').on('click', function(e) {
             e.preventDefault();
             let a = $('#filepath').val();
-            $.getJSON('/cc/create__folder1/?filepath='+a,
+            $.getJSON('/cc/create_folder1/?filepath='+a,
                 function(data) {
 
               $('#message1').html(data.message);
